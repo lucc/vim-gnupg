@@ -40,13 +40,13 @@ function s:shellescape(s, ...)
   return escaped
 endfunction
 
-" Function: s:GPGInit(bufread) {{{2
+" Function: gnupg#GPGInit(bufread) {{{2
 "
 " initialize the plugin
 " The bufread argument specifies whether this was called due to BufReadCmd
 "
-function s:GPGInit(bufread)
-  call s:GPGDebug(3, printf(">>>>>>>> Entering s:GPGInit(%d)", a:bufread))
+function gnupg#GPGInit(bufread)
+  call s:GPGDebug(3, printf(">>>>>>>> Entering gnupg#GPGInit(%d)", a:bufread))
 
   " For FileReadCmd, we're reading the contents into another buffer.  If that
   " buffer is also destined to be encrypted, then these settings will have
@@ -203,31 +203,31 @@ function s:GPGInit(bufread)
   call s:GPGDebug(2, "cipher algorithms: " . s:GPGCipher)
   call s:GPGDebug(2, "hashing algorithms: " . s:GPGHash)
   call s:GPGDebug(2, "compression algorithms: " . s:GPGCompress)
-  call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGInit()")
+  call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGInit()")
   let s:GPGInitRun = 1
 endfunction
 
-" Function: s:GPGCleanup() {{{2
+" Function: gnupg#GPGCleanup() {{{2
 "
 " cleanup on leaving vim
 "
-function s:GPGCleanup()
-  call s:GPGDebug(3, ">>>>>>>> Entering s:GPGCleanup()")
+function gnupg#GPGCleanup()
+  call s:GPGDebug(3, ">>>>>>>> Entering gnupg#GPGCleanup()")
 
   " wipe out screen
   new +only
   redraw!
 
-  call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGCleanup()")
+  call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGCleanup()")
 endfunction
 
-" Function: s:GPGDecrypt(bufread) {{{2
+" Function: gnupg#GPGDecrypt(bufread) {{{2
 "
 " decrypt the buffer and find all recipients of the encrypted file
 " The bufread argument specifies whether this was called due to BufReadCmd
 "
-function s:GPGDecrypt(bufread)
-  call s:GPGDebug(3, printf(">>>>>>>> Entering s:GPGDecrypt(%d)", a:bufread))
+function gnupg#GPGDecrypt(bufread)
+  call s:GPGDebug(3, printf(">>>>>>>> Entering gnupg#GPGDecrypt(%d)", a:bufread))
 
   " get the filename of the current buffer
   let filename = expand("<afile>:p")
@@ -257,7 +257,7 @@ function s:GPGDecrypt(bufread)
     " This is a new file, so force the user to edit the recipient list if
     " they open a new file and public keys are preferred
     if (g:GPGPreferSymmetric == 0)
-        call s:GPGEditRecipients()
+        call gnupg#GPGEditRecipients()
     endif
 
     return
@@ -340,7 +340,7 @@ function s:GPGDecrypt(bufread)
     echom "File is not encrypted, all GPG functions disabled!"
     echohl None
     exe printf('%sr %s', silent, fnameescape(filename))
-    call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGDecrypt()")
+    call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGDecrypt()")
     return
   endif
 
@@ -375,7 +375,7 @@ function s:GPGDecrypt(bufread)
     if a:bufread
       silent bwipeout!
     endif
-    call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGDecrypt()")
+    call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGDecrypt()")
     return
   endif
 
@@ -412,15 +412,15 @@ function s:GPGDecrypt(bufread)
   " refresh screen
   redraw!
 
-  call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGDecrypt()")
+  call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGDecrypt()")
 endfunction
 
-" Function: s:GPGEncrypt() {{{2
+" Function: gnupg#GPGEncrypt() {{{2
 "
 " encrypts the buffer to all previous recipients
 "
-function s:GPGEncrypt()
-  call s:GPGDebug(3, ">>>>>>>> Entering s:GPGEncrypt()")
+function gnupg#GPGEncrypt()
+  call s:GPGDebug(3, ">>>>>>>> Entering gnupg#GPGEncrypt()")
 
   " FileWriteCmd is only called when a portion of a buffer is being written to
   " disk.  Since Vim always sets the '[,'] marks to the part of a buffer that
@@ -453,7 +453,7 @@ function s:GPGEncrypt()
     echohl GPGError
     let blackhole = input("Message could not be encrypted! (Press ENTER)")
     echohl None
-    call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGEncrypt()")
+    call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGEncrypt()")
     return
   endif
 
@@ -525,7 +525,7 @@ function s:GPGEncrypt()
     echohl GPGError
     let blackhole = input("Message could not be encrypted! (Press ENTER)")
     echohl None
-    call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGEncrypt()")
+    call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGEncrypt()")
     return
   endif
 
@@ -546,22 +546,22 @@ function s:GPGEncrypt()
   silent exe ':doautocmd '. auType .'Post '. autocmd_filename
   call s:GPGDebug(2, 'called '. auType .'Post autocommand for ' . autocmd_filename)
 
-  call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGEncrypt()")
+  call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGEncrypt()")
 endfunction
 
-" Function: s:GPGViewRecipients() {{{2
+" Function: gnupg#GPGViewRecipients() {{{2
 "
 " echo the recipients
 "
-function s:GPGViewRecipients()
-  call s:GPGDebug(3, ">>>>>>>> Entering s:GPGViewRecipients()")
+function gnupg#GPGViewRecipients()
+  call s:GPGDebug(3, ">>>>>>>> Entering gnupg#GPGViewRecipients()")
 
   " guard for unencrypted files
   if (exists("b:GPGEncrypted") && b:GPGEncrypted == 0)
     echohl GPGWarning
     echom "File is not encrypted, all GPG functions disabled!"
     echohl None
-    call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGViewRecipients()")
+    call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGViewRecipients()")
     return
   endif
 
@@ -589,22 +589,22 @@ function s:GPGViewRecipients()
     echohl None
   endif
 
-  call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGViewRecipients()")
+  call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGViewRecipients()")
 endfunction
 
-" Function: s:GPGEditRecipients() {{{2
+" Function: gnupg#GPGEditRecipients() {{{2
 "
 " create a scratch buffer with all recipients to add/remove recipients
 "
-function s:GPGEditRecipients()
-  call s:GPGDebug(3, ">>>>>>>> Entering s:GPGEditRecipients()")
+function gnupg#GPGEditRecipients()
+  call s:GPGDebug(3, ">>>>>>>> Entering gnupg#GPGEditRecipients()")
 
   " guard for unencrypted files
   if (exists("b:GPGEncrypted") && b:GPGEncrypted == 0)
     echohl GPGWarning
     echom "File is not encrypted, all GPG functions disabled!"
     echohl None
-    call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGEditRecipients()")
+    call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGEditRecipients()")
     return
   endif
 
@@ -712,7 +712,7 @@ function s:GPGEditRecipients()
 
   endif
 
-  call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGEditRecipients()")
+  call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGEditRecipients()")
 endfunction
 
 " Function: s:GPGFinishRecipientsBuffer() {{{2
@@ -792,19 +792,19 @@ function s:GPGFinishRecipientsBuffer()
   call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGFinishRecipientsBuffer()")
 endfunction
 
-" Function: s:GPGViewOptions() {{{2
+" Function: gnupg#GPGViewOptions() {{{2
 "
 " echo the recipients
 "
-function s:GPGViewOptions()
-  call s:GPGDebug(3, ">>>>>>>> Entering s:GPGViewOptions()")
+function gnupg#GPGViewOptions()
+  call s:GPGDebug(3, ">>>>>>>> Entering gnupg#GPGViewOptions()")
 
   " guard for unencrypted files
   if (exists("b:GPGEncrypted") && b:GPGEncrypted == 0)
     echohl GPGWarning
     echom "File is not encrypted, all GPG functions disabled!"
     echohl None
-    call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGViewOptions()")
+    call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGViewOptions()")
     return
   endif
 
@@ -816,22 +816,22 @@ function s:GPGViewOptions()
     endfor
   endif
 
-  call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGViewOptions()")
+  call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGViewOptions()")
 endfunction
 
-" Function: s:GPGEditOptions() {{{2
+" Function: gnupg#GPGEditOptions() {{{2
 "
 " create a scratch buffer with all recipients to add/remove recipients
 "
-function s:GPGEditOptions()
-  call s:GPGDebug(3, ">>>>>>>> Entering s:GPGEditOptions()")
+function gnupg#GPGEditOptions()
+  call s:GPGDebug(3, ">>>>>>>> Entering gnupg#GPGEditOptions()")
 
   " guard for unencrypted files
   if (exists("b:GPGEncrypted") && b:GPGEncrypted == 0)
     echohl GPGWarning
     echom "File is not encrypted, all GPG functions disabled!"
     echohl None
-    call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGEditOptions()")
+    call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGEditOptions()")
     return
   endif
 
@@ -907,7 +907,7 @@ function s:GPGEditOptions()
     endif
   endif
 
-  call s:GPGDebug(3, "<<<<<<<< Leaving s:GPGEditOptions()")
+  call s:GPGDebug(3, "<<<<<<<< Leaving gnupg#GPGEditOptions()")
 endfunction
 
 " Function: s:GPGFinishOptionsBuffer() {{{2
