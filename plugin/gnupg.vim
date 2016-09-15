@@ -183,32 +183,6 @@ if (v:version < 702)
   finish
 endif
 
-" Section: Autocmd setup {{{1
-
-if (!exists("g:GPGFilePattern"))
-  let g:GPGFilePattern = '*.\(gpg\|asc\|pgp\)'
-endif
-
-augroup GnuPG
-  autocmd!
-
-  " do the decryption
-  exe "autocmd BufReadCmd " . g:GPGFilePattern .  " call gnupg#GPGInit(1) |" .
-                                                \ " call gnupg#GPGDecrypt(1)"
-  exe "autocmd FileReadCmd " . g:GPGFilePattern . " call gnupg#GPGInit(0) |" .
-                                                \ " call gnupg#GPGDecrypt(0)"
-
-  " convert all text to encrypted text before writing
-  " We check for GPGCorrespondingTo to avoid triggering on writes in GPG Options/Recipient windows
-  exe "autocmd BufWriteCmd,FileWriteCmd " . g:GPGFilePattern . " if !exists('b:GPGCorrespondingTo') |" .
-                                                             \ " call gnupg#GPGInit(0) |" .
-                                                             \ " call gnupg#GPGEncrypt() |" .
-                                                             \ " endif"
-
-  " cleanup on leaving vim
-  exe "autocmd VimLeave " . g:GPGFilePattern . " call gnupg#GPGCleanup()"
-augroup END
-
 " Section: Highlight setup {{{1
 
 highlight default link GPGWarning WarningMsg
